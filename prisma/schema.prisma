@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  parentId  Int?
+  isActive  Boolean?   @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  parent    Category?  @relation("ChildCategories", fields: [parentId], references: [id])
+  children  Category[] @relation("ChildCategories")
+  categories  ProductCategory[]
+}
+
+model Attribute {
+  id        Int       @id @default(autoincrement())
+  size      String?
+  color     String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  ProductAttribute[]
+}
+
+model Product {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int?             @default(1)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  categories  ProductCategory[]
+  attributes  ProductAttribute[]
+}
+
+model ProductCategory {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  productId  Int
+  isActive   Boolean   @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model ProductAttribute {
+  id          Int        @id @default(autoincrement())
+  productId   Int
+  attributeId Int
+  isActive    Boolean   @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  product     Product    @relation(fields: [productId], references: [id])
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+}
